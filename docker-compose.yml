@@ -1,0 +1,41 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Serviço do Banco de Dados PostgreSQL
+  db:
+    image: postgres:16-alpine # Usamos uma imagem mais leve e específica da versão 16
+    container_name: meu_postgres_db # Nome fácil de identificar para o contêiner
+    environment:
+      POSTGRES_DB: meu-db       # Nome do banco de dados que será criado
+      POSTGRES_USER: teste-admin    # Nome do usuário administrador para este DB
+      POSTGRES_PASSWORD: teste # Senha para o usuário administrador
+      # POSTGRES_PORT: 5432 # A porta padrão é 5432, não precisa ser explicitada aqui
+    ports:
+      - "5432:5432" # Mapeia a porta 5432 do host para a porta 5432 do contêiner
+    volumes:
+      # Volume nomeado para persistir os dados do banco de dados
+      # Isso garante que seus dados não sejam perdidos se o contêiner for removido/recriado
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped # Sempre reinicia o contêiner a menos que seja parado manualmente
+
+  # --- Opcional: Se seu servidor TS também for rodar em um contêiner Docker ---
+  # app:
+  #   build: . # Assume que você tem um Dockerfile na raiz do seu projeto TS
+  #   container_name: meu_servidor_ts_app
+  #   ports:
+  #     - "3000:3000" # Exemplo: Mapeia a porta do seu servidor TS
+  #   depends_on:
+  #     - db # Garante que o serviço 'db' inicie antes do 'app'
+  #   environment:
+  #     # Variáveis de ambiente para o seu servidor TS se conectar ao DB
+  #     DB_USER: teste_adm
+  #     DB_PASSWORD: teste
+  #     DB_NAME: meu-db
+  #     DB_HOST: db # IMPORTANTE: Use o nome do serviço do DB como host
+  #     DB_PORT: 5432
+  #     PORT: 3000
+
+# Definição dos volumes nomeados
+volumes:
+  pgdata:
